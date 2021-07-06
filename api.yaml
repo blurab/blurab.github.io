@@ -66,19 +66,22 @@ components:
   schemas:
     Event:
       type: object
-      description : top
-      required:
-        - type
-      properties:
-        type:
-          type: string
-          description: The event type.
-          example: virtualCardEvent
+      description: The card to add
       discriminator:
         propertyName: type
         mapping:
-          virtualCardEvent: '#/components/schemas/virtualCardEvent'
-          digitalCardEvent: '#/components/schemas/digitalCardEvent'
+          physical: '#/components/schemas/virtualCardEvent'
+          virtual: '#/components/schemas/digitalCardEvent'
+      required:
+        - type
+        - cardholder_id
+      properties:
+        type:
+          type: string
+          description: The card type.
+          example: virtual
+        cardholder_id:
+          type: string
     virtualCardEvent:
       type: object
       required:
