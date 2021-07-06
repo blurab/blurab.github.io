@@ -76,9 +76,9 @@ components:
           example: virtualCardEvent
       discriminator:
         propertyName: type
-          mapping:
-            virtualCardEvent: '#/components/schemas/virtualCardEvent'
-            digitalCardEvent: '#/components/schemas/digitalCardEvent'
+        mapping:
+          virtualCardEvent: '#/components/schemas/virtualCardEvent'
+          digitalCardEvent: '#/components/schemas/digitalCardEvent'
     virtualCardEvent:
       type: object
       required:
