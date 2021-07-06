@@ -20,16 +20,17 @@ paths:
             schema:
               type: object
               description : top
-              discriminator:
-                propertyName: eventType
-                mapping:
-                  virtualCardEvent: '#/components/schemas/virtualCardEvent'
-                  digitalCardEvent: '#/components/schemas/digitalCardEvent'
               required:
                 - eventType
               properties:
                 eventType:
                   type: string
+              discriminator:
+                propertyName: eventType
+                mapping:
+                  virtualCardEvent: '#/components/schemas/virtualCardEvent'
+                  digitalCardEvent: '#/components/schemas/digitalCardEvent'
+              
               
       responses:
         '200':
