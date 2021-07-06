@@ -18,22 +18,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              description : top
-              required:
-                - type
-              properties:
-                type:
-                  type: string
-                  description: The event type.
-                  example: virtualCardEvent
-              discriminator:
-                propertyName: type
-                mapping:
-                  virtualCardEvent: '#/components/schemas/virtualCardEvent'
-                  digitalCardEvent: '#/components/schemas/digitalCardEvent'
-              
-              
+              $ref: "#/components/schemas/Event"
       responses:
         '200':
           description: No content
@@ -79,6 +64,21 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
+    Event:
+      type: object
+      description : top
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          description: The event type.
+          example: virtualCardEvent
+      discriminator:
+        propertyName: type
+          mapping:
+            virtualCardEvent: '#/components/schemas/virtualCardEvent'
+            digitalCardEvent: '#/components/schemas/digitalCardEvent'
     virtualCardEvent:
       type: object
       required:
