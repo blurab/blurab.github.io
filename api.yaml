@@ -19,7 +19,7 @@ paths:
           application/json:
             schema:
               type: object
-              description : 2
+              description : top
               discriminator:
                 propertyName: eventType
                 mapping:
