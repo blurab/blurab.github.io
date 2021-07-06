@@ -105,16 +105,7 @@ components:
               description: unique identifier of card the digital card has been created from from (funding card)
               type: string
             tokenInfo:
-              type: Object
-              properties:
-                encryptedCredentials:
-                  type: string
-                  description: 'base64 encoded of the encrypted payload of the digital card token, it contains the PAN and expiry date of the token'
-                tokenRequestorId:
-                  type: string
-                tokenReference :
-                  type: string
-                  description: unique identifier allocated by the TSP 
+              $ref: '#/components/schemas/tokenInfo'
             status:
               type: string
               enum:
@@ -129,6 +120,17 @@ components:
                 - SUSPEND
                 - DELETE
                 - RENEW
+  tokenInfo:
+              type: Object
+              properties:
+                encryptedCredentials:
+                  type: string
+                  description: 'base64 encoded of the encrypted payload of the digital card token, it contains the PAN and expiry date of the token'
+                tokenRequestorId:
+                  type: string
+                tokenReference :
+                  type: string
+                  description: unique identifier allocated by the TSP 
   securitySchemes:
     bearerAuth:
       description: |-
