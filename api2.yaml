@@ -1,0 +1,1032 @@
+openapi: '3.0.1'
+info:
+  version: '1.0.0'
+  title: Issuing API Reference
+  x-logo:
+    url: "https://assets.checkout.com/docs/logos/checkout-api-reference-logo.svg"
+    backgroundColor: "#F0F3F7"
+    altText: "Checkout.com API logo"
+  contact:
+    name: Checkout.com Support
+    url: 'https://checkout.com'
+    email: support@checkout.com
+  license:
+    name: Checkout.com
+    url: 'https://checkout.com/api/license/'
+  termsOfService: 'https://checkout.com/terms/'
+  description: >
+    # Introduction
+
+    The Issuing ecosystem contains many APIs, both internal and external. We have adopted a specification-first approach whereby 
+    any changes to existing APIs or addition of new APIs start with an [OpenAPI](https://www.openapis.org/) specification.  
+
+    
+    This approach ensures that we can get feedback from the wider team and stakeholders before any development starts and serves 
+    as living documentation throughout the lifetime of the product.
+
+    # Authentication
+
+    OAuth 2.0 is an authorization protocol that gives an API client limited access to user data on a web server. 
+    OAuth relies on authentication scenarios called flows, which allow the resource owner (user) to share the protected content from the resource server without sharing their credentials. 
+    For that purpose, an OAuth 2.0 server issues access tokens that the client applications can use to access protected resources on behalf of the resource owner. 
+    For more information about OAuth 2.0, see oauth.net and RFC 6749.
+
+    In order for interactive client to be authenticated when making requests to this API please follow the Authentication Code flow.
+    1. A front-channel step should manage the signin/login/consent experience etc. This step results in an authorization code that represents the outcome of the front-channel operation.
+    2. A back-channel step where the authorization code from step 1 gets exchanged with the requested tokens.
+    For more information see [OAuth2 Autorization code](https://oauth.net/2/grant-types/authorization-code/)
+
+servers:
+  - url: https://api.checkout.com/issuing
+    description: Live API
+  - url: https://api.sandbox.checkout.com/issuing
+    description: Sandbox API
+
+x-tagGroups:
+  - name: Config API
+    tags:
+      - Cardholders
+      - Cards
+paths:
+  /cardholders:
+    post:
+      servers:
+        - url: https://api.checkout.com/issuing
+          description: Live API
+        - url: https://api.sandbox.checkout.com/issuing
+          description: Sandbox API
+      tags:
+        - Cardholders
+      summary: Add a cardholder
+      description: Add a new cardholder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/add-cardholder-request'
+      responses:
+        '201':
+          description: Cardholder added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/add-cardholder-response'
+        '401':
+          description: Unauthorized
+        '422':
+          description: Invalid data was sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '500':
+          description: Internal Server Error
+  /cardholders/{cardholderId}:
+    get:
+      servers:
+        - url: https://api.checkout.com/issuing
+          description: Live API
+        - url: https://api.sandbox.checkout.com/issuing
+          description: Sandbox API
+      tags:
+        - Cardholders
+      summary: Retrieve a cardholder 
+      description: Retrieve an existing cardholder
+      parameters:
+        - in: path
+          name: cardholder_id
+          required: true
+          schema:
+            $ref: '#/components/schemas/CardholderId'
+      responses:
+        '200':
+          description: Card holder retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/get-cardholder-response'        
+        '401':
+          description: Unauthorized
+        '404':
+          description: Cardholder not found
+        '500':
+          description: Internal Server Error
+  /cards:
+    post:
+      servers:
+        - url: https://api.checkout.com/issuing
+          description: Live API
+        - url: https://api.sandbox.checkout.com/issuing
+          description: Sandbox API
+      tags:
+        - Cards
+      summary: Add a card
+      description: Add a new physical or virtual card.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/add-card-request'
+      responses:
+        '201':
+          description: Card added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/add-card-response'
+        '401':
+          description: Unauthorized
+        '422':
+          description: Invalid data was sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '500':
+          description: Internal Server Error
+  /cards/{cardId}:
+    get:
+      servers:
+        - url: https://api.checkout.com/issuing
+          description: Live API
+        - url: https://api.sandbox.checkout.com/issuing
+          description: Sandbox API
+      tags:
+        - Cards
+      summary: Retrieve a card
+      description: Retrieve an existing card. This endpoint will not returned sensitive information such as the PAN or CVC.
+      parameters:
+        - in: path
+          name: cardId
+          required: true
+          schema:
+            $ref: '#/components/schemas/CardId'
+      responses:
+        '200':
+          description: Card retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/get-card-response'   
+        '401':
+          description: Unauthorized
+        '404':
+          description: Card Not Found
+        '500':
+          description: Internal Server Error
+  /cards/{cardId}/activate:
+    post:
+      servers:
+        - url: https://api.checkout.com/issuing
+          description: Live API
+        - url: https://api.sandbox.checkout.com/issuing
+          description: Sandbox API
+      tags:
+        - Cards
+      summary: Activate a card
+      description: Activate a card so that its cardholder can start using it.
+      parameters:
+        - in: path
+          name: cardId
+          required: true
+          schema:
+            $ref: '#/components/schemas/CardId'
+      responses:
+        '200':
+          description: Card successfully activated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/activate-card-response'   
+        '401':
+          description: Unauthorized
+        '404':
+          description: Card Not found
+        '422':
+          description: Invalid data was sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+  /cards/{cardId}/credentials:
+    get:
+      servers:
+        - url: https://api.checkout.com/issuing
+          description: Live API
+        - url: https://api.sandbox.checkout.com/issuing
+          description: Sandbox API
+      tags:
+        - Cards
+      summary: Retrieve the card credentials
+      description: Retrieve the card credentials.
+      parameters:
+        - in: path
+          name: cardId
+          required: true
+          schema:
+            $ref: '#/components/schemas/CardId'
+        - in: query
+          name: credentials
+          required: false
+          schema:
+            type: string
+            enum:
+              - number
+              - cvc2
+            example: number,cvc2
+            description: | 
+              One or more comma-separated credential fields. 
+              This works like a logical *AND* operator and returns the combined crendentials in the response.
+              Defaults to no credentials being returned.
+      responses:
+        '200':
+          description: Card credentials retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Credentials'   
+        '401':
+          description: Unauthorized
+        '404':
+          description: Card Not found
+        '422':
+          description: Invalid data was sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '500':
+          description: Internal Server Error
+  /cards/{cardId}/revoke:
+    post:
+      servers:
+        - url: https://api.checkout.com/issuing
+          description: Live API
+        - url: https://api.sandbox.checkout.com/issuing
+          description: Sandbox API
+      tags:
+        - Cards
+      summary: Revoke a card
+      description: Revoke a card permanently. This cannot be undone unlike the suspend action. 
+      parameters:
+        - in: path
+          name: cardId
+          required: true
+          schema:
+            $ref: '#/components/schemas/CardId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/revoke-card-request'
+      responses:
+        '200':
+          description: Card successfully revoked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/revoke-card-response'   
+        '401':
+          description: Unauthorized
+        '404':
+          description: Card Not found
+        '422':
+          description: Invalid data was sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+  /cards/{cardId}/suspend:
+    post:
+      servers:
+        - url: https://api.checkout.com/issuing
+          description: Live API
+        - url: https://api.sandbox.checkout.com/issuing
+          description: Sandbox API
+      tags:
+        - Cards
+      summary: Suspend a card
+      description: Suspend a card temporarily so that incoming authorizations are declined. This action can be reversed.
+      parameters:
+        - in: path
+          name: cardId
+          required: true
+          schema:
+            $ref: '#/components/schemas/CardId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/suspend-card-request'
+      responses:
+        '200':
+          description: Card successfully suspended
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/suspend-card-response'   
+        '401':
+          description: Unauthorized
+        '404':
+          description: Card Not found
+        '422':
+          description: Invalid data was sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+components:
+  schemas:
+    add-cardholder-request:
+      type: object
+      description: The cardholder to add.
+      discriminator:
+        propertyName: type
+        mapping:
+          individual: '#/components/schemas/add-individual-cardholder-request'
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          description: The cardholder type.
+          example: individual
+        reference:
+          $ref: '#/components/schemas/Reference'
+    add-cardholder-response:
+      type: object
+      required:
+        - id
+        - type
+        - _links
+      properties:
+        id:
+          $ref: '#/components/schemas/CardholderId'
+        type:
+          type: string
+          description: The cardholder type.
+          enum:
+            - individual
+        reference:
+          $ref: '#/components/schemas/Reference'
+        created_date:
+          type: string
+          format: datetime
+        last_modified_date:
+          type: string
+          format: datetime
+          example: "2019-09-10T10:11:12Z"
+        _links:
+          allOf:
+            - $ref: '#/components/schemas/CardholderLinks'
+    add-individual-cardholder-request:
+      type: object
+      required:
+        - first_name
+        - last_name
+        - billing_address
+      allOf:
+        - $ref: '#/components/schemas/add-cardholder-request'
+        - type: object
+          properties:
+            first_name:
+              type: string
+              description: The cardholder first name.
+              example: John
+              pattern: ^[a-zA-Z'- ]{1,40}$
+              minLength: 1
+              maxLength: 40
+            middle_name:
+              type: string
+              description: The cardholder middle name.
+              example: Fitzgerald
+              pattern: ^[a-zA-Z'- ]{1,40}$
+              minLength: 1
+              maxLength: 40
+            last_name:
+              type: string
+              description: The cardholder last name.
+              example: Kennedy
+              pattern: ^[a-zA-Z'- ]{1,40}$
+              minLength: 1
+              maxLength: 40
+            email:
+              description: The cardholder's email.
+              $ref: '#/components/schemas/Email'
+            phone_number:
+              description: The cardholder's phonenumber. This information will be used at part of the 3DS challenge.
+              $ref: '#/components/schemas/PhoneNumber'
+            date_of_birth:
+              type: string
+              format: date
+              description: The cardholder date of birth in the YYYY-MM-DD format.
+              example: "1985-05-15"
+            billing_address:
+              description: The  cardholder's billing address.
+              $ref: '#/components/schemas/Address'
+            residency_address:
+              description: The cardholder's residency address. If not passed the billing address will be used.
+              $ref: '#/components/schemas/Address'
+    get-cardholder-response:
+      type: object
+      $ref: '#/components/schemas/Cardholder'
+    Cardholder:
+      type: object
+      required:
+        - id
+        - type
+        - first_name
+        - last_name
+        - billing_address
+      properties:
+        id:
+          $ref: '#/components/schemas/CardholderId'
+        type:
+          type: string
+          description: The cardholder type. Currently `individual` is the only supported value.
+          example: individual
+        first_name:
+          type: string
+          description: The cardholder first name.
+          example: John
+          pattern: ^[a-zA-Z'- ]{1,40}$
+          minLength: 1
+          maxLength: 40
+        middle_name:
+          type: string
+          description: The cardholder middle name.
+          example: Fitzgerald
+          pattern: ^[a-zA-Z'- ]{1,40}$
+          minLength: 1
+          maxLength: 40
+        last_name:
+          type: string
+          description: The cardholder last name.
+          example: Kennedy
+          pattern: ^[a-zA-Z'- ]{1,40}$
+          minLength: 1
+          maxLength: 40
+        email:
+          description: The cardholder's email.
+          $ref: '#/components/schemas/Email'
+        phone_number:
+          description: The cardholder's phone number. This information will be used for authorisations requiring a 3DS challenge.
+          $ref: '#/components/schemas/PhoneNumber'
+        date_of_birth:
+          type: string
+          format: date
+          description: The cardholder date of birth in the YYYY-MM-DD format.
+          example: "1985-05-28"
+        billing_address:
+          description: The  cardholder's billing address.
+          $ref: '#/components/schemas/Address'
+        residency_address:
+          description: The cardholder's residency address. If not passed the billing address will be used.
+          $ref: '#/components/schemas/Address'
+        reference:
+          $ref: '#/components/schemas/Reference'
+        created_date:
+          type: string
+          format: datetime
+          example: "2019-09-10T10:11:12Z"
+        last_modified_date:
+          type: string
+          format: datetime
+          example: "2019-09-11T10:11:12Z"
+        _links:
+          $ref: '#/components/schemas/CardholderLinks'
+    CardholderLinks:
+      type: object
+      description: The links related to the current cardholder
+      minItems: 1
+      required:
+        - self
+      properties:
+        self:
+          type: object
+          description: The URI to retrieve the current cardholder
+          $ref: '#/components/schemas/Link'
+        cards:
+          type: object
+          description: The URI to add or retrieve cards for this cardholder
+          $ref: '#/components/schemas/Link'
+      example:
+        self:
+          href: "https://api.checkout.com/issuing/cardholders/crh_d3ozhf43pcq2xbldn2g45qnb44"
+        cards:
+          href: "https://api.checkout.com/issuing/cards"
+    activate-card-response:
+      type: object
+      properties:
+        _links:
+          allOf:
+            - $ref: '#/components/schemas/ActivatedCardLinks'
+    add-card-request:
+      type: object
+      description: The card to add
+      discriminator:
+        propertyName: type
+        mapping:
+          physical: '#/components/schemas/add-physical-card-request'
+          virtual: '#/components/schemas/add-virtual-card-request'
+      required:
+        - type
+        - cardholder_id
+      properties:
+        type:
+          type: string
+          description: The card type.
+          example: virtual
+        cardholder_id:
+          $ref: '#/components/schemas/CardholderId'
+        card_lifetime:
+          $ref: '#/components/schemas/CardLifetime'
+        reference:
+          $ref: '#/components/schemas/Reference'
+    add-card-response:
+      type: object
+      description: Card details
+      required:
+        - id
+        - display_name
+        - last_four
+        - expiry_month
+        - expiry_year
+        - created_date
+      properties:
+        id:
+          $ref: '#/components/schemas/CardId'
+        display_name:
+          $ref: '#/components/schemas/DisplayName'
+        last_four:
+          $ref: '#/components/schemas/LastFour'
+        expiry_month:
+          $ref: '#/components/schemas/ExpiryMonth'
+        expiry_year:
+          $ref: '#/components/schemas/ExpiryYear'
+        reference:
+          $ref: '#/components/schemas/Reference'
+        created_date:
+          type: string
+          format: datetime
+          example: "2019-09-10T10:11:12Z"
+        _links:
+          allOf:
+            - $ref: '#/components/schemas/CardLinks'
+    add-physical-card-request:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/add-card-request'
+        - type: object
+          properties:
+            display_name:
+              $ref: '#/components/schemas/DisplayName'
+              description: The display name shown on the virtual card. When not specified and if the cardholder name is compliant to requirements, then the cardholder name will be used as the display name.
+            shipping_instructions:
+              $ref: '#/components/schemas/ShippingInstruction'
+            activate_card:
+              type: bool
+              default: false
+              description: Choose whether you want to activate the newly created card. By default physical cards are created as inactive. Inactive cards do not accept transactions.   
+      required:
+        - shipping_instructions
+    add-virtual-card-request:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/add-card-request'
+        - type: object
+          properties:
+            display_name:
+              $ref: '#/components/schemas/DisplayName'
+              description: The display name shown on the virtual card. When not specified and if the cardholder name is compliant to requirements, then the cardholder name will be used as the display name.
+            is_single_use:
+              type: bool
+              description: Indicates whether the virtual card can be used only one time.
+              default: false
+            activate_card:
+              type: bool
+              default: true
+              description: Choose whether you want to activate the newly created card. By default virtual cards are created as active. Inactive cards do not accept transactions.
+    DisplayName:
+      type: string
+      pattern: ^[a-zA-Z'- ]{1,28}$
+      minLength: 1
+      maxLength: 28
+      example: JOHN KENNEDY
+    get-card-response:
+      type: object
+      description: Card details
+      required:
+        - id
+        - last_four
+        - expiry_month
+        - expiry_year
+        - status
+        - active
+        - type
+        - display_name
+      properties:
+        id:
+          $ref: '#/components/schemas/CardId'
+        last_four:
+          $ref: '#/components/schemas/LastFour'
+        expiry_month:
+          $ref: '#/components/schemas/ExpiryMonth'
+        expiry_year:
+          $ref: '#/components/schemas/ExpiryYear'
+        status:
+          $ref: '#/components/schemas/Status'
+        display_name:
+          $ref: '#/components/schemas/DisplayName'
+        type:
+          type: string
+          description: The card type
+          enum:
+            - virtual
+            - physical
+          example: virtual
+        reference:
+          $ref: '#/components/schemas/Reference'
+        created_date:
+          type: string
+          format: datetime
+          example: "2019-09-10T10:11:12Z"
+        last_modified_date:
+          type: string
+          format: datetime
+          example: "2019-09-11T10:11:12Z"
+        _links:
+          allOf:
+            - $ref: '#/components/schemas/CardLinks'
+    ActivatedCardLinks:
+      type: object
+      description: The links related to the card
+      minItems: 1
+      required:
+        - self
+        - credentials
+        - revoke
+      properties:
+        self:
+          type: object
+          $ref: '#/components/schemas/Link'
+          description: The URI to retrieve the card details.
+        revoke:
+          type: object
+          $ref: '#/components/schemas/Link'
+          description: The URI to revoke the card.
+        suspend:
+          type: object
+          $ref: '#/components/schemas/Link'
+          description: The URI to suspend the card.
+      example:
+        self:
+          href: "https://api.checkout.com/issuing/cards/crd_fa6psq42dcdd6fdn5gifcq1491"
+        revoke:
+          href: "https://api.checkout.com/issuing/cards/crd_fa6psq42dcdd6fdn5gifcq1491/revoke"
+        suspend:
+          href: "https://api.checkout.com/issuing/cards/crd_fa6psq42dcdd6fdn5gifcq1491/suspend"
+    CardLifetime:
+      type: object
+      description: The card lifetime during which it accepts authorisations. The selected lifetime will determine the expiry date.
+      required:
+        - value
+      properties:
+        unit:
+          type: string
+          enum: [Months, Years]
+          description: The card lifetime unit
+          example: Months
+          default: Years
+        value:
+          type: integer
+          description: The card lifetime value in the selected unit
+          example: 6
+    CardLink:
+      type: object
+      description: The link to the card
+      minItems: 1
+      required:
+        - self
+      properties:
+        self:
+          type: object
+          $ref: '#/components/schemas/Link'
+          description: The URI to retrieve the card details.
+      example:
+        self:
+          href: "https://api.checkout.com/issuing/cards/crd_fa6psq42dcdd6fdn5gifcq1491"
+    CardLinks:
+      type: object
+      description: The links related to the card
+      minItems: 1
+      required:
+        - self
+        - credentials
+        - revoke
+      properties:
+        self:
+          type: object
+          $ref: '#/components/schemas/Link'
+          description: The URI to retrieve the card details.
+        credentials:
+          type: object
+          $ref: '#/components/schemas/Link'
+          description: The URI to retrieve the card credentials.
+        revoke:
+          type: object
+          $ref: '#/components/schemas/Link'
+          description: The URI to revoke the card.
+      example:
+        self:
+          href: "https://api.checkout.com/issuing/cards/crd_fa6psq42dcdd6fdn5gifcq1491"
+        credentials:
+          href: "https://api.checkout.com/issuing/cards/crd_fa6psq42dcdd6fdn5gifcq1491/credentials"
+        revoke:
+          href: "https://api.checkout.com/issuing/cards/crd_fa6psq42dcdd6fdn5gifcq1491/revoke"
+    CardNumber:
+      type: string
+      format: pan
+      description: The unencrypted card number
+      pattern: ^[0-9]{16}$
+      minLength: 16
+      maxLength: 16
+      example: 4242424242424242
+    Credentials:
+      type: object
+      properties:
+        number:
+          $ref: '#/components/schemas/CardNumber'
+        cvc2:
+          $ref: '#/components/schemas/CVC2'
+        
+    CVC2:
+      type: string
+      minimum: 3
+      maximum: 3
+      pattern: ^[0-9]{3}$
+      description: The card verification code (CVC2) often referred to as the card verification value (CVV).
+      example: 604
+    ExpiryMonth:
+      type: integer
+      format: int32
+      description: The expiry month of the card
+      minimum: 1
+      maximum: 12
+      example: 5
+    ExpiryYear:
+      type: integer
+      format: int32
+      description: The four-digit expiry year of the card
+      example: 2025
+      maxLength: 4
+      minLength: 4
+    LastFour:
+      type: string
+      minimum: 4
+      maximum: 4
+      pattern: ^[0-9]{4}$
+      description: The last four digits of the card number (PAN).
+      example: 1234
+    Scheme:
+      type: string
+      description: the card scheme
+      enum:
+        - mastercard
+        - visa
+      example: mastercard
+    Status:
+      description: The current card status.
+      type: string
+      enum:
+        - active
+        - inactive
+        - revoked
+        - suspended
+      example: active
+    SuspendedCardLinks:
+      type: object
+      description: The links related to the card
+      minItems: 1
+      required:
+        - self
+        - credentials
+        - revoke
+      properties:
+        self:
+          type: object
+          $ref: '#/components/schemas/Link'
+          description: The URI to retrieve the card details
+        activate:
+          type: object
+          $ref: '#/components/schemas/Link'
+          description: The URI to activate the card
+        revoke:
+          type: object
+          $ref: '#/components/schemas/Link'
+          description: The URI to revoke the card
+      example:
+        self:
+          href: "https://api.checkout.com/issuing/cards/crd_fa6psq42dcdd6fdn5gifcq1491"
+        activate:
+          href: "https://api.checkout.com/issuing/cards/crd_fa6psq42dcdd6fdn5gifcq1491/activate"
+        revoke:
+          href: "https://api.checkout.com/issuing/cards/crd_fa6psq42dcdd6fdn5gifcq1491/revoke"
+    revoke-card-request:
+      type: object
+      properties:
+        reason:
+          type: string
+          enum:
+            - expired
+            - reported_lost
+            - reported_stolen
+          example: reported_lost
+    revoke-card-response:
+      type: object
+      properties:
+        _links:
+          allOf:
+            - $ref: '#/components/schemas/CardLink'
+    suspend-card-request:
+      type: object
+      properties:
+        reason:
+          type: string
+          enum:
+            - suspected_lost
+            - suspected_stolen
+          example: suspected_lost
+    suspend-card-response:
+      
+      type: object
+      properties:
+        _links:
+          allOf:
+            - $ref: '#/components/schemas/SuspendedCardLinks'
+    Address:
+      type: object
+      required:
+        - address_line1
+        - city
+        - zip
+        - country
+      properties:
+        address_line1: 
+          type: string
+          description: The first line of the address
+          example: Checkout.com
+          maxLength: 256
+          minLength: 1
+        address_line2:
+          type: string
+          description: The second line of the address
+          example: 90 Tottenham Court Road
+          maxLength: 256
+          minLength: 1
+        city:
+          type: string
+          description: The address city
+          example: London
+          maxLength: 256
+          minLength: 1
+        state:
+          type: string
+          description: The address state
+          example: London
+          maxLength: 256
+          minLength: 1
+        zip:
+          type: string
+          description: The address zip/postal code
+          example: W1T 4TJ
+          maxLength: 256
+          minLength: 1
+        country:
+          type: string
+          description: The two-letter <a href="https://docs.checkout.com/docs/country-codes" target="blank">ISO country code</a> of the address
+          example: GB
+          maxLength: 2
+          minLength: 2
+    CardholderId:
+      type: string
+      pattern: "^crh_[a-z0-9]{26}$"
+      description: The unique identifier of a cardholder
+      maxLength: 30
+      minLength: 30
+      example: crh_d3ozhf43pcq2xbldn2g45qnb44
+    CardId:
+      type: string
+      pattern: "^crd_[a-z0-9]{26}$"
+      description: The unique identifier of a card 
+      maxLength: 30
+      minLength: 30
+      example: crd_fa6psq242dcd6fdn5gifcq1491
+    Currency:
+      type: string
+      description: The three-letter <a href="https://docs.checkout.com/docs/currency-codes" target="blank">ISO currency code</a>
+      format: ISO4217
+      example: USD
+      pattern: ^[a-zA-Z]{3}$
+      maxLength: 3
+      minLength: 3
+    Email:
+      # TODO: validate & specify formats
+      type: string
+      format: email
+      example: john.kennedy@myemaildomain.com
+      minLength: 1
+      maxLength: 256
+    Link:
+      type: object
+      properties:
+        href:
+          description: The link URL
+          type: string
+      required:
+        - href
+    PhoneNumber:
+      type: object
+      properties:
+        country_code: 
+          type: string
+          description: The international <a href="https://docs.checkout.com/resources/codes/country-codes" target="blank">country calling code</a>
+          minLength: 1
+          maxLength: 7
+          example: "+1"
+        number:
+          type: string
+          description: The phone number
+          minLength: 6
+          maxLength: 25
+          example: 415 555 2671
+    Reference:
+      type: string
+      description: Your reference
+      example: X-123456-N11
+      maxLength: 256
+    ShippingInstruction:
+      type: object
+      required:
+        - shipping_recipient
+        - shipping_address
+      properties:
+        shipping_recipient:
+          type: string
+          description: name of the recipient
+          minLength: 1
+          maxLength: 256
+          example: john kennedy
+        shipping_address: 
+          $ref: '#/components/schemas/Address'
+          description : the address to which the physical card is to be sent
+        additional_comment:
+          type: string
+          maxLength: 256
+          minLength: 1
+      
+      
+        
+    ValidationError:
+      type: object
+      properties:
+        request_id:
+          type: string
+          example: 0HLHPN8802NUF:00000003
+        error_type:
+          type: string
+          example: request_invalid
+        error_codes:
+          type: array
+          items:
+            type: string
+            example: request_body_malformed
+  securitySchemes:
+    OAuth:
+      type: oauth2
+      description: |
+        For server-to-server communication we support the OAuth 2.0, client-credentials flow. 
+        To authenticate you must first create an Access Key via the Checkout Issuing Hub.
+        You can then request an access token via the token URL below. 
+        You must authenticate using Basic authentication providing you Access Key ID and Secret as username and password respectively:
+        ```
+        curl --location --request POST 'https://access(.sandbox).checkout.com/connect/token' \
+        --header 'Content-Type: application/x-www-form-urlencoded' \
+        --header 'Authorization: Basic dGVzdC1hY2Nlc3Mta2V5LWlkOnRlc3QtYWNjZXNzLWtleS1zZWNyZXQ=' \
+        --data-urlencode 'grant_type=client_credentials' \
+        --data-urlencode 'scope=issuing:client'
+        ```
+        The token server will return a Bearer `access_token` in JWT format that can then be provided in the `Authorization`
+        header of your API requests:
+        
+        When the access token expires you will need to request a new one, or use one of our SDKs that handle this automatically.
+      flows:
+        clientCredentials:
+          tokenUrl: https://access.checkout.com/connect/token
+          scopes:
+            issuing:partner: Gives access to endpoint dedicted to partners
+            issuing:client: Gives access to endpoint dedicted to clients
