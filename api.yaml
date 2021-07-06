@@ -18,22 +18,15 @@ paths:
         content:
           application/json:
             schema:
-              allOf:
-              - type: object
-                properties:
-                  eventType:
-                    type: string
-                    enum:
-                      - virtualCardEvent
-                      - digitalCardEvent
-              - oneOf:
-                  - $ref: '#/components/schemas/virtualCardEvent'
-                  - $ref: '#/components/schemas/digitalCardEvent'
-                discriminator:
-                  propertyName: eventType
-                  mapping:
-                    virtualCardEvent: '#/components/schemas/virtualCardEvent'
-                    digitalCardEvent: '#/components/schemas/digitalCardEvent'
+              type: object
+              properties:
+                eventType:
+                  type: string
+              discriminator:
+                propertyName: eventType
+                mapping:
+                  virtualCardEvent: '#/components/schemas/virtualCardEvent'
+                  digitalCardEvent: '#/components/schemas/digitalCardEvent'
       responses:
         '200':
           description: No content
