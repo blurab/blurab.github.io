@@ -120,7 +120,7 @@ components:
                 - SUSPEND
                 - DELETE
                 - RENEW
-  tokenInfo:
+    tokenInfo:
               type: Object
               properties:
                 encryptedCredentials:
