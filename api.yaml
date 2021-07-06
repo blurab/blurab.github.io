@@ -21,7 +21,7 @@ paths:
               type: object
               description : top
               required:
-                - eventType
+                - type
               properties:
                 type:
                   type: string
