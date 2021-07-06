@@ -58,8 +58,8 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          physical: '#/components/schemas/virtualCardEvent'
-          virtual: '#/components/schemas/digitalCardEvent'
+          virtualCardEvent: '#/components/schemas/virtualCardEvent'
+          digitalCardEvent: '#/components/schemas/digitalCardEvent'
       required:
         - type
       properties:
