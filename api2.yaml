@@ -67,7 +67,6 @@ components:
           type: string
           description: The event type.
           example: virtualCardEvent
-    
     virtualCardEvent:
       type: object
       allOf:
@@ -100,14 +99,22 @@ components:
         - type: object
           properties:
             cardId:
-              description: unqiue identifier of the digital card
+              description: unique identifier of the digital card
               type: string
             originCardId:
-              description: unqiue identifier of card the digital card has been created from from (funding card)
+              description: unique identifier of card the digital card has been created from from (funding card)
               type: string
-            token:
-              type: string
-              description: 'base64 encoded of the encrypted payload of the digital card token, it contains the PAN and expiry date of the token'
+            tokenInfo:
+              type: Object
+              properties:
+                encryptedCredentials:
+                  type: string
+                  description: 'base64 encoded of the encrypted payload of the digital card token, it contains the PAN and expiry date of the token'
+                tokenRequestorId:
+                  type: string
+                tokenReference :
+                  type: string
+                  description: unique identifier allocated by the TSP 
             status:
               type: string
               enum:
