@@ -19,15 +19,18 @@ paths:
           application/json:
             schema:
               type: object
-              description : ...
-              properties:
-                eventType:
-                  type: string
+              description : 2
               discriminator:
                 propertyName: eventType
                 mapping:
                   virtualCardEvent: '#/components/schemas/virtualCardEvent'
                   digitalCardEvent: '#/components/schemas/digitalCardEvent'
+               required:
+                - eventType
+              properties:
+                eventType:
+                  type: string
+              
       responses:
         '200':
           description: No content
