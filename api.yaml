@@ -23,10 +23,12 @@ paths:
               required:
                 - eventType
               properties:
-                eventType:
+                type:
                   type: string
+                  description: The event type.
+                  example: virtualCardEvent
               discriminator:
-                propertyName: eventType
+                propertyName: type
                 mapping:
                   virtualCardEvent: '#/components/schemas/virtualCardEvent'
                   digitalCardEvent: '#/components/schemas/digitalCardEvent'
