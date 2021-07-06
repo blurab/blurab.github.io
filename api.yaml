@@ -1,0 +1,131 @@
+openapi: 3.0.0
+info:
+  contact:
+    name: ''
+  title: D1 Services API - Event API
+  version: '1.0'
+  description: D1 Services API - Event API<br/> This API is used by D1 to notify the bank of any kind of usefull event related to the consumer and all its assets
+security:
+  - bearerAuth: []
+paths:
+  '/consumers/{consumerId}/events/{eventId}':
+    put:
+      description: This request is used by D1 to notify the bank about any event related to the consumer and all its assets.
+      parameters:
+        - $ref: '#/components/parameters/consumer-id-path'
+        - $ref: '#/components/parameters/event-id-path'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+              - type: object
+                properties:
+                  eventType:
+                    type: string
+                    enum:
+                      - virtualCardEvent
+                      - digitalCardEvent
+              - oneOf:
+                  - $ref: '#/components/schemas/virtualCardEvent'
+                  - $ref: '#/components/schemas/digitalCardEvent'
+                discriminator:
+                  propertyName: eventType
+                  mapping:
+                    virtualCardEvent: '#/components/schemas/virtualCardEvent'
+                    digitalCardEvent: '#/components/schemas/digitalCardEvent'
+      responses:
+        '200':
+          description: No content
+        '404':
+          description: Consumer was not found
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    type: string
+                    description: Consumer was not found.
+        '500':
+          description: Unexpected error
+      summary: Event Notification
+      tags:
+        - Events
+      operationId: eventNotification
+servers:
+  - url: /d1/../v1
+components:
+  parameters:
+    event-id-path:
+      description: The unique identifier of the event
+      in: path
+      name: eventId
+      required: true
+      schema:
+        type: string
+    consumer-id-path:
+      description: The id of the consumer
+      in: path
+      name: consumerId
+      required: true
+      schema:
+        type: string
+  securitySchemes:
+    bearerAuth:
+      description: |-
+        A JWT using the Bearer schema.
+        The server checks the validity of the provided token to control access to this protected resource.
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    virtualCardEvent:
+      type: object
+      required:
+        - cardId
+        - status
+      properties:
+        cardId:
+          type: string
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - SUSPENDED
+            - DELETED
+        action:
+          type: string
+          enum:
+            - CREATE
+            - ACTIVATE
+            - SUSPEND
+            - DELETE
+            - RENEW
+    digitalCardEvent:
+      type: object
+      required:
+        - cardId
+        - status
+      properties:
+        cardId:
+          type: string
+        credentials:
+          type: string
+          description: 'base64 encoded payload of the digital card token, it contains the PAN and expiry date of the token'
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - SUSPENDED
+            - DELETED
+        action:
+          type: string
+          enum:
+            - CREATE
+            - ACTIVATE
+            - SUSPEND
+            - DELETE
+            - RENEW
+tags:
+  - name: Events
+
