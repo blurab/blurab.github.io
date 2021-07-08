@@ -1,136 +1,52 @@
-openapi: '3.0.1'
+openapi: 3.0.0
 info:
-  version: '1.0.0'
-  title: Events API Reference
-  description: >
-    # Introduction
-servers:
-  - url: https://d1.thales.io/events
-    description: Live API
-  - url: https://sandbox.d1.thales.io/events
-    description: Sandbox API
+  contact:
+    name: ''
+  title: D1 Services API - Event API
+  version: '1.0'
+  description: D1 Services API - Event API<br/> This API is used by D1 to notify the bank of any kind of usefull event related to the consumer and all its assets
 security:
   - bearerAuth: []
-
 paths:
-  '/consumers/{consumerId}/events/{eventId}':
+  '/notifications/{notificationId}':
     put:
-      tags:
-        - Events
-      summary: Event Notification
       description: This request is used by D1 to notify the bank about any event related to the consumer and all its assets.
       parameters:
-        - $ref: '#/components/parameters/consumer-id-path'
-        - $ref: '#/components/parameters/event-id-path'
+        - $ref: '#/components/parameters/notification-id-path'
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/event'
+              $ref: '#/components/schemas/Event'
       responses:
         '200':
-          description: No Content-Type
-        '401':
-          description: Unauthorized
+          description: No content
+        '404':
+          description: Consumer was not found
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    type: string
+                    description: Consumer was not found.
         '500':
-          description: Internal Server Error
+          description: Unexpected error
+      summary: Event Notification
+      tags:
+        - Notificatios
+      operationId: eventNotification
+servers:
+  - url: /d1/../v1
 components:
   parameters:
-    event-id-path:
-      description: The unique identifier of the event
+    notification-id-path:
+      description: The unique identifier of the event notification
       in: path
-      name: eventId
+      name: notificationId
       required: true
       schema:
         type: string
-    consumer-id-path:
-      description: The unique identifier of the consumer
-      in: path
-      name: consumerId
-      required: true
-      schema:
-        type: string
-  schemas:
-    event:
-      type: object
-      description: The event
-      discriminator:
-        propertyName: type
-        mapping:
-          virtualCardEvent: '#/components/schemas/virtualCardEvent'
-          digitalCardEvent: '#/components/schemas/digitalCardEvent'
-      required:
-        - type
-      properties:
-        type:
-          type: string
-          description: The event type.
-          example: virtualCardEvent
-    virtualCardEvent:
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/event'
-        - type: object          
-          properties:
-            cardId:
-              type: string
-            status:
-              type: string
-              enum:
-                - ACTIVE
-                - SUSPENDED
-                - DELETED
-            action:
-              type: string
-              enum:
-                - CREATE
-                - ACTIVATE
-                - SUSPEND
-                - DELETE
-                - RENEW
-      required:
-        - cardId
-        - status
-    digitalCardEvent:
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/event'
-        - type: object
-          properties:
-            cardId:
-              description: unique identifier of the digital card
-              type: string
-            originCardId:
-              description: unique identifier of card the digital card has been created from from (funding card)
-              type: string
-            tokenInfo:
-              $ref: '#/components/schemas/tokenInfo'
-            status:
-              type: string
-              enum:
-                - ACTIVE
-                - SUSPENDED
-                - DELETED
-            action:
-              type: string
-              enum:
-                - CREATE
-                - ACTIVATE
-                - SUSPEND
-                - DELETE
-                - RENEW
-    tokenInfo:
-              type: Object
-              properties:
-                encryptedCredentials:
-                  type: string
-                  description: 'base64 encoded of the encrypted payload of the digital card token, it contains the PAN and expiry date of the token'
-                tokenRequestorId:
-                  type: string
-                tokenReference :
-                  type: string
-                  description: unique identifier allocated by the TSP 
   securitySchemes:
     bearerAuth:
       description: |-
@@ -139,3 +55,63 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  schemas:
+    Event:
+      allOf:
+                - type: object
+                  required:
+                    - notificationType
+                    - cardId
+                    - status
+                    - action
+                  properties:
+                    notificationType:
+                      type: string
+                      enum:
+                        - virtualCardEvent
+                        - digitalCardEvent
+                    cardId:
+                      type: string
+                    status:
+                      type: string
+                      enum:
+                        - ACTIVE
+                        - SUSPENDED
+                        - DELETED
+                    action:
+                      type: string
+                      enum:
+                        - CREATE
+                        - ACTIVATE
+                        - SUSPEND
+                        - DELETE
+                        - RENEW
+                - oneOf:
+                  - $ref: '#/components/schemas/virtualCardEvent'
+                  - $ref: '#/components/schemas/digitalCardEvent'
+                  discriminator:
+                    propertyName: notificationType
+                    mapping:
+                      virtualCardEvent: '#/components/schemas/virtualCardEvent'
+                      digitalCardEvent: '#/components/schemas/digitalCardEvent'
+    virtualCardEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+    digitalCardEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          required:
+            - eventType
+            - cardId
+            - status
+          properties:
+            tokenRequestorId:
+              type: string
+            tokenStorageType:
+              type: string
+              enum:
+                - PHONE
+                - WEARABLE
+tags:
+  - name: Notifications
